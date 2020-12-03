@@ -8,7 +8,7 @@ class Coord(NamedTuple):
     x: int
 
     def __add__(self, other) -> 'Coord':
-        return Coord(self.y + other.y, self.x + other.x)
+        return Coord(y=self.y + other.y, x=self.x + other.x)
 
 
 def has_tree(treemap: List[str], loc: Coord):
