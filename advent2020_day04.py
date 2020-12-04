@@ -75,7 +75,14 @@ parsed_data = parse_data(read_data())
 
 total_valid = 0
 for record in parsed_data:
+    if NEEDED_FIELDS.issubset(record.keys()):
+        total_valid += 1
+
+print(f"Total valid for part 1 is {total_valid}")
+
+total_valid = 0
+for record in parsed_data:
     if NEEDED_FIELDS.issubset(record.keys()) and all_fields_valid(record):
         total_valid += 1
 
-print(f"Total valid is {total_valid}")
+print(f"Total valid for part 2 is {total_valid}")
