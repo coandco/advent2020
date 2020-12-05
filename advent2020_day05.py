@@ -13,6 +13,10 @@ class Coord(NamedTuple):
     def id(self):
         return (self.y * 8) + self.x
 
+    @staticmethod
+    def from_seat(seat: str):
+        return Coord(y=bin_to_number(seat[:7], 128, "B", "F"), x=bin_to_number(seat[-3:], 8, "R", "L"))
+
 
 def bin_to_number(bin_string, limit, upper_char, lower_char):
     current_lower = 0
@@ -29,15 +33,11 @@ def bin_to_number(bin_string, limit, upper_char, lower_char):
     return current_upper - 1
 
 
-def seat_to_coords(seat: str):
-    return Coord(y=bin_to_number(seat[:7], 128, "B", "F"), x=bin_to_number(seat[-3:], 8, "R", "L"))
-
-
 highest_id = 0
 max_y = 0
 min_y = 9999
 for line in read_data().split("\n"):
-    coord = seat_to_coords(line)
+    coord = Coord.from_seat(line)
     if coord.id > highest_id:
         highest_id = coord.id
     if coord.y > max_y:
@@ -45,16 +45,18 @@ for line in read_data().split("\n"):
     if coord.y < min_y:
         min_y = coord.y
 
-print(highest_id)
+print(f"Part one: {highest_id}")
 
 possible_seats = set()
 for i in range(min_y+1, max_y-1):
     for j in range(8):
         possible_seats.add(Coord(y=i, x=j))
+
 for line in read_data().split():
-    coord = seat_to_coords(line)
-    possible_seats.discard(coord)
+    possible_seats.discard(Coord.from_seat(line))
 
 if len(possible_seats) == 1:
     (coord,) = possible_seats
-    print(coord.id)
+    print(f"Part two: {coord.id}")
+else:
+    print(f"Part two ended up with {len(possible_seats)} missing seats rather than one answer")
