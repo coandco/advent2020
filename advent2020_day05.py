@@ -9,6 +9,10 @@ class Coord(NamedTuple):
     def __add__(self, other) -> 'Coord':
         return Coord(y=self.y + other.y, x=self.x + other.x)
 
+    @property
+    def id(self):
+        return (self.y * 8) + self.x
+
 
 def bin_to_number(bin_string, limit, upper_char, lower_char):
     current_lower = 0
@@ -29,17 +33,13 @@ def seat_to_coords(seat: str):
     return Coord(y=bin_to_number(seat[:7], 128, "B", "F"), x=bin_to_number(seat[-3:], 8, "R", "L"))
 
 
-def coord_to_id(coord: Coord):
-    return (coord.y*8) + coord.x
-
 highest_id = 0
 max_y = 0
 min_y = 9999
 for line in read_data().split("\n"):
     coord = seat_to_coords(line)
-    id = coord_to_id(coord)
-    if id > highest_id:
-        highest_id = id
+    if coord.id > highest_id:
+        highest_id = coord.id
     if coord.y > max_y:
         max_y = coord.y
     if coord.y < min_y:
@@ -57,5 +57,4 @@ for line in read_data().split():
 
 if len(possible_seats) == 1:
     (coord,) = possible_seats
-    id = coord_to_id(coord)
-    print(id)
+    print(coord.id)
