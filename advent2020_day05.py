@@ -14,23 +14,23 @@ class Coord(NamedTuple):
         return (self.y * 8) + self.x
 
     @staticmethod
+    def _bin_to_number(bin_string, limit, upper_char, lower_char):
+        current_lower = 0
+        current_upper = limit
+        for char in bin_string:
+            range_size = (current_upper - current_lower)
+            if range_size <= 1:
+                raise Exception("Tried to adjust sub-1")
+            adjustment_size = int(range_size / 2)
+            if char == upper_char:
+                current_lower += adjustment_size
+            elif char == lower_char:
+                current_upper -= adjustment_size
+        return current_upper - 1
+
+    @staticmethod
     def from_seat(seat: str):
-        return Coord(y=bin_to_number(seat[:7], 128, "B", "F"), x=bin_to_number(seat[-3:], 8, "R", "L"))
-
-
-def bin_to_number(bin_string, limit, upper_char, lower_char):
-    current_lower = 0
-    current_upper = limit
-    for char in bin_string:
-        range_size = (current_upper - current_lower)
-        if range_size <= 1:
-            raise Exception("Tried to adjust sub-1")
-        adjustment_size = int(range_size / 2)
-        if char == upper_char:
-            current_lower += adjustment_size
-        elif char == lower_char:
-            current_upper -= adjustment_size
-    return current_upper - 1
+        return Coord(y=Coord._bin_to_number(seat[:7], 128, "B", "F"), x=Coord._bin_to_number(seat[-3:], 8, "R", "L"))
 
 
 highest_id = 0
