@@ -33,30 +33,20 @@ class Coord(NamedTuple):
         return Coord(y=Coord._bin_to_number(seat[:7], 128, "B", "F"), x=Coord._bin_to_number(seat[-3:], 8, "R", "L"))
 
 
-highest_id = 0
-max_y = 0
-min_y = 9999
-for line in read_data().split("\n"):
-    coord = Coord.from_seat(line)
-    if coord.id > highest_id:
-        highest_id = coord.id
-    if coord.y > max_y:
-        max_y = coord.y
-    if coord.y < min_y:
-        min_y = coord.y
-
+seats = {Coord.from_seat(x) for x in read_data().split("\n")}
+highest_id = max(x.id for x in seats)
 print(f"Part one: {highest_id}")
 
 possible_seats = set()
+max_y = max(x.y for x in seats)
+min_y = min(x.y for x in seats)
 for i in range(min_y+1, max_y-1):
     for j in range(8):
         possible_seats.add(Coord(y=i, x=j))
 
-for line in read_data().split():
-    possible_seats.discard(Coord.from_seat(line))
-
-if len(possible_seats) == 1:
-    (coord,) = possible_seats
+leftover_seats = possible_seats - seats
+if len(leftover_seats) == 1:
+    (coord,) = leftover_seats
     print(f"Part two: {coord.id}")
 else:
-    print(f"Part two ended up with {len(possible_seats)} missing seats rather than one answer")
+    print(f"Part two ended up with {len(leftover_seats)} missing seats rather than one answer")
