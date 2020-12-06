@@ -12,5 +12,5 @@ class Group:
 
 
 parsed_groups = [Group(x.split("\n")) for x in read_data().split("\n\n")]
-print(f"Part one: {sum([len(x.any_questions_answered) for x in parsed_groups])}")
-print(f"Part two: {sum([len(x.all_questions_answered) for x in parsed_groups])}")
+print(f"Part one: {sum(len(x.any_questions_answered) for x in parsed_groups)}")
+print(f"Part two: {sum(len(x.all_questions_answered) for x in parsed_groups)}")
