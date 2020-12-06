@@ -4,9 +4,7 @@ from typing import List
 
 class Group:
     def __init__(self, group_lines: List[str]):
-        self.records = []
-        for line in group_lines:
-            self.records.append(set(line))
+        self.records = [set(x) for x in group_lines]
         self.any_questions_answered = set.union(*self.records)
         self.all_questions_answered = set.intersection(*self.records)
 
