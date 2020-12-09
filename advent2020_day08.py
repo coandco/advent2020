@@ -11,16 +11,21 @@ class Instruction(NamedTuple):
         opcode, arg = string.split(" ")
         return Instruction(opcode, int(arg))
 
-    def swap_opcode(self):
-        if self.opcode == "jmp":
-            return Instruction("nop", self.arg)
-        elif self.opcode == "nop":
-            return Instruction("jmp", self.arg)
+    def swap_opcode(self, opcode1, opcode2):
+        if self.opcode == opcode1:
+            return Instruction(opcode2, self.arg)
+        elif self.opcode == opcode2:
+            return Instruction(opcode1, self.arg)
         else:
             return self
 
     def __repr__(self):
         return f"{self.opcode} {self.arg}"
+
+
+class ProgramResult(NamedTuple):
+    acc: int
+    looped: bool
 
 
 def run_program(data: List[Instruction]):
@@ -39,28 +44,29 @@ def run_program(data: List[Instruction]):
         elif current.opcode == "nop":
             pc += 1
         if pc in seen_instructions:
-            return True, acc
+            return ProgramResult(acc=acc, looped=True)
         if pc >= len(data):
-            return False, acc
+            return ProgramResult(acc=acc, looped=False)
 
 
 INPUT = read_data().split("\n")
 data = [Instruction.from_string(x) for x in INPUT]
 
-_, acc = run_program(data)
+result = run_program(data)
 
-print(f"Part one accumulator is {acc}")
+print(f"Part one accumulator is {result.acc}")
 
 current_swap = 0
 while True:
     modified_program = data[:]
-    modified_program[current_swap] = modified_program[current_swap].swap_opcode()
-    looped, acc = run_program(modified_program)
-    if looped:
+    modified_program[current_swap] = modified_program[current_swap].swap_opcode("jmp", "nop")
+    result = run_program(modified_program)
+    if result.looped:
         # print(f"swapping instruction {current_swap} results in a loop")
         pass
     else:
         break
     current_swap += 1
-print(f"After swapping instruction {current_swap} ({data[current_swap]}), the program exited normally with acc of {acc}")
+print(f"After swapping instruction {current_swap} ({data[current_swap]}), "
+      f"the program exited normally with acc of {result.acc}")
 
