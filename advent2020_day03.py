@@ -7,11 +7,11 @@ class Coord(NamedTuple):
     y: int
     x: int
 
-    def __add__(self, other) -> 'Coord':
+    def __add__(self, other: 'Coord') -> 'Coord':
         return Coord(y=self.y + other.y, x=self.x + other.x)
 
 
-def has_tree(treemap: List[str], loc: Coord):
+def has_tree(treemap: List[str], loc: Coord) -> bool:
     if loc.y < 0 or loc.y >= len(treemap):
         return None
     if treemap[loc.y][loc.x % len(treemap[0])] == "#":
@@ -20,7 +20,7 @@ def has_tree(treemap: List[str], loc: Coord):
         return False
 
 
-def check_slope(treemap: List[str], slope: Coord):
+def check_slope(treemap: List[str], slope: Coord) -> int:
     num_trees = 0
     curpos = Coord(x=0, y=0)
     while (current_tree := has_tree(treemap, curpos)) is not None:

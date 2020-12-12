@@ -1,9 +1,10 @@
 import itertools
 from utils import read_data
+from typing import List
 from math import prod
 
 
-def sum_prod(num_list, sum_value, r_length):
+def sum_prod(num_list: List[int], sum_value: int, r_length: int) -> int:
     combinations = itertools.combinations(num_list, r_length)
     solution = [prod(x) for x in combinations if sum(x) == sum_value]
     return solution[0] if solution else None

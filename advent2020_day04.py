@@ -1,4 +1,5 @@
 from utils import read_data
+from typing import List, Dict
 import re
 
 NEEDED_FIELDS = {
@@ -22,7 +23,7 @@ EYE_COLORS = {
 }
 
 
-def parse_data(input_data):
+def parse_data(input_data: str) -> List[Dict[str, str]]:
     data = input_data.split("\n\n")
     intermediate = [re.split(r'[\n ]', x) for x in data]
     final = []
@@ -35,7 +36,7 @@ def parse_data(input_data):
     return final
 
 
-def all_fields_valid(record):
+def all_fields_valid(record: Dict[str, str]) -> bool:
     for key, value in record.items():
         if key == "byr":
             if len(value) != 4 or not (1920 <= int(value) <= 2002):
@@ -71,18 +72,19 @@ def all_fields_valid(record):
     return True
 
 
-parsed_data = parse_data(read_data())
+if __name__ == '__main__':
+    parsed_data = parse_data(read_data())
 
-total_valid = 0
-for record in parsed_data:
-    if NEEDED_FIELDS.issubset(record.keys()):
-        total_valid += 1
+    total_valid = 0
+    for record in parsed_data:
+        if NEEDED_FIELDS.issubset(record.keys()):
+            total_valid += 1
 
-print(f"Total valid for part 1 is {total_valid}")
+    print(f"Total valid for part 1 is {total_valid}")
 
-total_valid = 0
-for record in parsed_data:
-    if NEEDED_FIELDS.issubset(record.keys()) and all_fields_valid(record):
-        total_valid += 1
+    total_valid = 0
+    for record in parsed_data:
+        if NEEDED_FIELDS.issubset(record.keys()) and all_fields_valid(record):
+            total_valid += 1
 
-print(f"Total valid for part 2 is {total_valid}")
+    print(f"Total valid for part 2 is {total_valid}")
