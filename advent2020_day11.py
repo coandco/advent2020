@@ -64,7 +64,7 @@ class DictGrid:
                         break
             self.neighbors[coord] = neighbor_set
 
-    def _new_value(self, coord):
+    def _new_value(self, coord) -> bool:
         test_count = 0
         if coord.x == 0 and coord.y == 1:
             test_count += 1
@@ -82,10 +82,10 @@ class DictGrid:
         self.grid = new_grid
         return any_changes
 
-    def count_occupied(self):
+    def count_occupied(self) -> int:
         return len([x for x in self.grid if self.grid[x]])
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         retval = ""
         for i in range(self.height):
             for j in range(self.width):
@@ -100,7 +100,7 @@ class DictGrid:
         return retval
 
 
-def part_one(data):
+def part_one(data: List[str]) -> Tuple[int, float]:
     start = time()
     grid = DictGrid(data)
     while grid.convolute():
@@ -110,7 +110,7 @@ def part_one(data):
     return grid.count_occupied(), part_one_time
 
 
-def part_two(data):
+def part_two(data: List[str]) -> Tuple[int, float]:
     start = time()
     grid = DictGrid(data, simple_neighbors=False)
     while grid.convolute():

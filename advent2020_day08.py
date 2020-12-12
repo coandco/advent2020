@@ -7,11 +7,11 @@ class Instruction(NamedTuple):
     arg: int
 
     @staticmethod
-    def from_string(string):
+    def from_string(string: str) -> 'Instruction':
         opcode, arg = string.split(" ")
         return Instruction(opcode, int(arg))
 
-    def swap_opcode(self, opcode1, opcode2):
+    def swap_opcode(self, opcode1: str, opcode2: str) -> 'Instruction':
         if self.opcode == opcode1:
             return Instruction(opcode2, self.arg)
         elif self.opcode == opcode2:
@@ -19,7 +19,7 @@ class Instruction(NamedTuple):
         else:
             return self
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.opcode} {self.arg}"
 
 
@@ -28,7 +28,7 @@ class ProgramResult(NamedTuple):
     looped: bool
 
 
-def run_program(data: List[Instruction]):
+def run_program(data: List[Instruction]) -> ProgramResult:
     pc = 0
     acc = 0
     seen_instructions = set()
@@ -49,24 +49,25 @@ def run_program(data: List[Instruction]):
             return ProgramResult(acc=acc, looped=False)
 
 
-INPUT = read_data().split("\n")
-data = [Instruction.from_string(x) for x in INPUT]
+if __name__ == '__main__':
+    INPUT = read_data().split("\n")
+    parsed_data = [Instruction.from_string(x) for x in INPUT]
 
-result = run_program(data)
+    result = run_program(parsed_data)
 
-print(f"Part one accumulator is {result.acc}")
+    print(f"Part one accumulator is {result.acc}")
 
-current_swap = 0
-while True:
-    modified_program = data[:]
-    modified_program[current_swap] = modified_program[current_swap].swap_opcode("jmp", "nop")
-    result = run_program(modified_program)
-    if result.looped:
-        # print(f"swapping instruction {current_swap} results in a loop")
-        pass
-    else:
-        break
-    current_swap += 1
-print(f"After swapping instruction {current_swap} ({data[current_swap]}), "
-      f"the program exited normally with acc of {result.acc}")
+    current_swap = 0
+    while True:
+        modified_program = parsed_data[:]
+        modified_program[current_swap] = modified_program[current_swap].swap_opcode("jmp", "nop")
+        result = run_program(modified_program)
+        if result.looped:
+            # print(f"swapping instruction {current_swap} results in a loop")
+            pass
+        else:
+            break
+        current_swap += 1
+    print(f"After swapping instruction {current_swap} ({parsed_data[current_swap]}), "
+          f"the program exited normally with acc of {result.acc}")
 

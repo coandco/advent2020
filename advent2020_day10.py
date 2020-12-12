@@ -1,7 +1,8 @@
 from utils import read_data
+from typing import List, Dict
 
 
-def part_one(data):
+def part_one(data: List[int]) -> int:
     # Add the wall socket and your device to the list
     full_data = [0] + sorted(data) + [max(data) + 3]
     # Calculate the difference between each item
@@ -9,7 +10,7 @@ def part_one(data):
     return differences.count(1) * differences.count(3)
 
 
-def calculate_value(known_cache, entry):
+def calculate_value(known_cache: Dict[int, int], entry: int) -> int:
     total = 0
     for step in (1, 2, 3):
         # If value + step is in the cache, add it to your own value
@@ -19,7 +20,7 @@ def calculate_value(known_cache, entry):
     return total
 
 
-def part_two(data):
+def part_two(data: List[int]) -> int:
     # Add the wall socket and your device to the list
     full_data = [0] + sorted(data) + [max(data) + 3]
     # Start with our device and initialize the number of paths on it to one
