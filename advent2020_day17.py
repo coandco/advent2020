@@ -1,5 +1,5 @@
 from utils import read_data
-from typing import NamedTuple, List, Set
+from typing import NamedTuple, List, Set, Union
 
 
 class Coord3D(NamedTuple):
@@ -52,41 +52,29 @@ def input_to_4d_points(data: List[str]) -> Set[Coord4D]:
     return active_cubes
 
 
-def get_possible_changes_3d(active_cubes: Set[Coord3D]) -> Set[Coord3D]:
+def get_possible_changes(active_cubes: Union[Set[Coord3D], Set[Coord4D]],
+                         neighbor_offsets: Union[List[Coord3D], List[Coord4D]]) -> Union[Set[Coord3D], Set[Coord4D]]:
     possible_changes = active_cubes.copy()
     for point in active_cubes:
-        possible_changes.update({point + neighbor for neighbor in NEIGHBORS_3D})
+        possible_changes.update({point + neighbor for neighbor in neighbor_offsets})
     return possible_changes
 
 
-def get_possible_changes_4d(active_cubes: Set[Coord4D]) -> Set[Coord4D]:
-    possible_changes = active_cubes.copy()
-    for point in active_cubes:
-        possible_changes.update({point + neighbor for neighbor in NEIGHBORS_4D})
-    return possible_changes
-
-
-def check_neighbors_3d(active_cubes: Set[Coord3D], point: Coord3D) -> int:
+def check_neighbors(active_cubes: Union[Set[Coord3D], Set[Coord4D]], point: Union[Coord3D, Coord4D],
+                       neighbor_offsets: Union[List[Coord3D], List[Coord4D]]) -> int:
     total = 0
-    for adjacent in {point + neighbor for neighbor in NEIGHBORS_3D}:
+    for adjacent in {point + neighbor for neighbor in neighbor_offsets}:
         if adjacent in active_cubes:
             total += 1
     return total
 
 
-def check_neighbors_4d(active_cubes: Set[Coord4D], point: Coord4D) -> int:
-    total = 0
-    for adjacent in {point + neighbor for neighbor in NEIGHBORS_4D}:
-        if adjacent in active_cubes:
-            total += 1
-    return total
-
-
-def run_cycle_3d(active_cubes: Set[Coord3D]):
+def run_cycle(active_cubes: Union[Set[Coord3D], Set[Coord4D]],
+              neighbor_offsets: Union[List[Coord3D], List[Coord4D]]) -> Union[Set[Coord3D], Set[Coord4D]]:
     new_active_cubes = active_cubes.copy()
-    possible_changes = get_possible_changes_3d(active_cubes)
+    possible_changes = get_possible_changes(active_cubes, neighbor_offsets)
     for point in possible_changes:
-        num_neighbors = check_neighbors_3d(active_cubes, point)
+        num_neighbors = check_neighbors(active_cubes, point, neighbor_offsets)
         if point in active_cubes and num_neighbors not in (2, 3):
             new_active_cubes.remove(point)
         elif point not in active_cubes and num_neighbors == 3:
@@ -94,32 +82,17 @@ def run_cycle_3d(active_cubes: Set[Coord3D]):
     return new_active_cubes
 
 
-def run_cycle_4d(active_cubes: Set[Coord4D]):
-    new_active_cubes = active_cubes.copy()
-    possible_changes = get_possible_changes_4d(active_cubes)
-    for point in possible_changes:
-        num_neighbors = check_neighbors_4d(active_cubes, point)
-        if point in active_cubes and num_neighbors not in (2, 3):
-            new_active_cubes.remove(point)
-        elif point not in active_cubes and num_neighbors == 3:
-            new_active_cubes.add(point)
-    return new_active_cubes
-
-
-TEST_INPUT = """.#.
-..#
-###""".split("\n")
 INPUT = read_data().split("\n")
 
 points_3d = input_to_3d_points(INPUT)
 for _ in range(6):
-    points_3d = run_cycle_3d(points_3d)
+    points_3d = run_cycle(points_3d, NEIGHBORS_3D)
 
 print(f"Total active 3D points: {len(points_3d)}")
 
 points_4d = input_to_4d_points(INPUT)
 for _ in range(6):
-    points_4d = run_cycle_4d(points_4d)
+    points_4d = run_cycle(points_4d, NEIGHBORS_4D)
 
 print(f"Total active 4D points: {len(points_4d)}")
 
