@@ -1,17 +1,35 @@
 from utils import read_data
 from dataclasses import dataclass
-from typing import Tuple, FrozenSet, Dict
+from typing import Tuple, Optional, Dict, List, Set, NamedTuple
 from math import prod
 import numpy as np
 
 
-DIRECTIONS = {'N': 0, 'W': 1, 'S': 2, 'E': 3}
+DIRECTIONS = {'N': 0, 'E': 1, 'S': 2, 'W': 3}
+DIRECTION_INTS = {v: k for k, v in DIRECTIONS.items()}
 ROTATED_DIRECTIONS = {'N': 'E', 'E': 'S', 'S': 'W', 'W': 'N'}
+ROTATED_DIRECTION_INTS = {DIRECTIONS[k]: DIRECTIONS[v] for k, v in ROTATED_DIRECTIONS.items()}
+MATCHING_SIDES = {'N': 'S', 'S': 'N', 'W': 'E', 'E': 'W'}
 
 
+SEA_MONSTER = """                  # 
+#    ##    ##    ###
+ #  #  #  #  #  #   """.split("\n")
 
-@dataclass
-class Tile:
+
+class Coord(NamedTuple):
+    y: int
+    x: int
+
+    def __add__(self, other: 'Coord') -> 'Coord':
+        return Coord(x=self.x + other.x, y=self.y + other.y)
+
+    def __repr__(self) -> str:
+        return f"Coord(x={self.x}, y={self.y})"
+
+
+@dataclass(frozen=True)
+class FrozenTile:
     tile_id: int
     tile_data: Tuple[Tuple[bool, ...], ...]
     sides: Tuple[Tuple[bool], ...]
@@ -20,7 +38,7 @@ class Tile:
     def side_fits(self, side: Tuple[bool]):
         return side in self.sides or side in self.reversed_sides
 
-    def find_rotation(self, other_tile: 'Tile'):
+    def find_rotation(self, other_tile: 'FrozenTile'):
         for i, side in enumerate(self.sides):
             for j, other_side in enumerate(other_tile.sides):
                 if side == other_side:
@@ -31,25 +49,33 @@ class Tile:
                     flipped = True
                     return i, j, flipped
 
+    def occupied_sides(self, other_tiles: Set['FrozenTile']) -> Set[int]:
+        occupied = set()
+        for i, side in enumerate(self.sides):
+            for other_tile in other_tiles:
+                if side in other_tile.sides or side in other_tile.reversed_sides:
+                    occupied.add(i)
+        return occupied
+
     @staticmethod
-    def from_string(data: str) -> 'Tile':
+    def from_string(data: str) -> 'FrozenTile':
         lines = data.split("\n")
-        tile_id = int(lines[0].split("Tile ")[1][:-1])
+        tile_id = int(lines[0][5:-1])
         tile_data = []
         for line in lines[1:]:
             tile_data.append(tuple(char == "#" for char in line))
         # Sides:     0
         #            -
-        #         1 | | 3
+        #         3 | | 1
         #            -
         #            2
         sides = tuple([tuple(tile_data[0]),
-                      tuple(x[0] for x in tile_data),
+                      tuple(x[-1] for x in tile_data),
                       tuple(tile_data[-1]),
-                      tuple(x[-1] for x in tile_data)
+                      tuple(x[0] for x in tile_data)
                       ])
         reversed_sides = tuple([tuple(reversed(x)) for x in sides])
-        return Tile(tile_id=tile_id, tile_data=tuple(tile_data), sides=sides, reversed_sides=reversed_sides)
+        return FrozenTile(tile_id=tile_id, tile_data=tuple(tile_data), sides=sides, reversed_sides=reversed_sides)
 
     def __repr__(self):
         output = [f"Tile {self.tile_id}:"]
@@ -58,7 +84,116 @@ class Tile:
         return "\n".join(output)
 
 
-def get_matching_tiles(tile_dict: Dict[int, Tile], tile: Tile):
+@dataclass
+class NPTile:
+    tile_id: int
+    tile_data: np.ndarray
+    right_tile: Optional['NPTile'] = None
+    down_tile: Optional['NPTile'] = None
+
+    @staticmethod
+    def from_string(data: str) -> 'NPTile':
+        lines = data.split("\n")
+        tile_id = int(lines[0][5:-1])
+        tile_data = []
+        for line in lines[1:]:
+            tile_data.append([1 if char == "#" else 0 for char in line])
+        tile_data_np = np.ndarray(tile_data, dtype=int)
+        return NPTile(tile_id=tile_id, tile_data=tile_data_np)
+
+    @staticmethod
+    def from_frozen_tile(tile: FrozenTile) -> 'NPTile':
+        return NPTile(tile_id=tile.tile_id, tile_data=np.array(tile.tile_data, dtype=int))
+
+    @property
+    def sides(self) -> Tuple[np.ndarray, ...]:
+        return tuple([self.tile_data[0, :],
+                      self.tile_data[:, -1],
+                      self.tile_data[-1, :],
+                      self.tile_data[:, 0]])
+
+    @property
+    def reversed_sides(self) -> Tuple[np.ndarray, ...]:
+        return tuple([np.flip(x) for x in self.sides])
+
+    @property
+    def without_borders(self) -> np.ndarray:
+        return self.tile_data[1:-1, 1:-1]
+
+    def rotate(self, times: int = 1):
+        self.tile_data = np.rot90(self.tile_data, times, axes=(1, 0))
+
+    def flipud(self):
+        self.tile_data = np.flipud(self.tile_data)
+
+    def match(self, side_num: int, side: np.ndarray):
+        for _ in range(4):
+            self.rotate()
+            if np.array_equal(self.sides[side_num], side):
+                return True
+        self.flipud()
+        for _ in range(4):
+            self.rotate()
+            if np.array_equal(self.sides[side_num], side):
+                return True
+        return False
+
+    def get_full_web(self, borders=True):
+        full_web = None
+        line_start = self
+
+        while line_start is not None:
+            line_buffer = None
+            current_tile = line_start
+            while current_tile is not None:
+                if borders:
+                    current_ndarray = current_tile.tile_data
+                else:
+                    current_ndarray = current_tile.without_borders
+
+                if line_buffer is None:
+                    line_buffer = current_ndarray
+                else:
+                    line_buffer = np.concatenate((line_buffer, current_ndarray), axis=1)
+
+                current_tile = current_tile.right_tile
+            if full_web is None:
+                full_web = line_buffer
+            else:
+                full_web = np.concatenate((full_web, line_buffer), axis=0)
+            line_start = line_start.down_tile
+        return full_web
+
+    def repr_with_spacing(self, borders=True) -> List[str]:
+        buffer = []
+        line_start = self
+        line_height = self.tile_data.shape[0] if borders else self.without_borders.shape[0]
+        # loop over lines
+        while line_start is not None:
+            line_buffer = [""] * line_height
+            current_tile = line_start
+            # Loop over tiles in the line
+            while current_tile is not None:
+                for i in range(line_height):
+                    slice = current_tile.tile_data[i, :] if borders else current_tile.without_borders[i, :]
+                    line_buffer[i] += "".join(["#" if x else "." for x in slice])
+                    line_buffer[i] += " "
+                current_tile = current_tile.right_tile
+            # Once we finish a line, append it to the buffer, followed by a blank line
+            buffer.extend(line_buffer)
+            buffer.append("")
+            line_start = line_start.down_tile
+        return buffer
+
+    def repr_without_spacing(self, borders=True) -> List[str]:
+        buffer = []
+        full_web = self.get_full_web(borders=borders)
+        for row in full_web:
+            buffer.append("".join("#" if x else "." for x in row))
+        return buffer
+
+
+def get_matching_tiles(tile_dict: Dict[int, FrozenTile], tile: FrozenTile) -> Set[FrozenTile]:
     matching_tiles = set()
     for other_tile in tile_dict.values():
         if other_tile.tile_id == tile.tile_id:
@@ -66,8 +201,70 @@ def get_matching_tiles(tile_dict: Dict[int, Tile], tile: Tile):
             continue
         for side in tile.sides:
             if other_tile.side_fits(side):
-                matching_tiles.add(other_tile.tile_id)
+                matching_tiles.add(other_tile)
     return matching_tiles
+
+
+def get_corner_rotation(dir_set: Set[int]) -> int:
+    for i in range(4):
+        # We want the first piece to be the top-left one
+        if dir_set == {DIRECTIONS['E'], DIRECTIONS['S']}:
+            return i
+        else:
+            new_dirs = set()
+            for dir in dir_set:
+                new_dirs.add(ROTATED_DIRECTION_INTS[dir])
+            dir_set = new_dirs
+
+
+def build_nptile_web(tile_set: Dict[int, FrozenTile], matching_tiles: Dict[int, Set[FrozenTile]], first_piece: Optional[NPTile] = None):
+    if not first_piece:
+        corners = [tile_set[x] for x in matching_tiles.keys() if len(matching_tiles[x]) == 2]
+        top_left = corners[0]
+        occupied_sides = first_piece.occupied_sides([tile_set[x] for x in matching_tiles[first_piece.tile_id]])
+        first_piece_rotation = get_corner_rotation(occupied_sides)
+        first_piece = NPTile.from_frozen_tile(top_left)
+        first_piece.rotate(first_piece_rotation)
+
+    current_line_start = first_piece
+    # For each line
+    while True:
+        # Exit the loop if we've tried to go down and have reached the end
+        if current_line_start is None:
+            break
+        current_piece = current_line_start
+        # For each element in the line
+        while True:
+            for possible_next_piece in [NPTile.from_frozen_tile(x) for x in matching_tiles[current_piece.tile_id]]:
+                if possible_next_piece.match(DIRECTIONS['W'], current_piece.sides[DIRECTIONS['E']]):
+                    current_piece.right_tile = possible_next_piece
+                elif possible_next_piece.match(DIRECTIONS['N'], current_piece.sides[DIRECTIONS['S']]):
+                    current_piece.down_tile = possible_next_piece
+            if current_piece.right_tile:
+                current_piece = current_piece.right_tile
+                continue
+            else:
+                # We've reached the end of the line, go to the next line if possible
+                current_line_start = current_line_start.down_tile
+                break
+    return first_piece
+
+
+def get_sea_monster_coords() -> Set[Coord]:
+    sea_monster_coords = set()
+    for i, line in enumerate(SEA_MONSTER):
+        for j, char in enumerate(line):
+            if char == "#":
+                sea_monster_coords.add(Coord(y=i, x=j))
+    return sea_monster_coords
+
+
+def find_sea_monster(grid: np.ndarray) -> Coord:
+    sea_monster_height = len(SEA_MONSTER)
+    sea_monster_width = len(SEA_MONSTER[0])
+    sea_monster_coords = get_sea_monster_coords()
+    while True:
+        pass
 
 
 TEST_DATA = """Tile 2311:
@@ -178,10 +375,20 @@ Tile 3079:
 ..#.......
 ..#.###..."""
 
-test_tiles = {Tile.from_string(x).tile_id: Tile.from_string(x) for x in TEST_DATA.split("\n\n")}
+
+test_tiles = {FrozenTile.from_string(x).tile_id: FrozenTile.from_string(x) for x in TEST_DATA.split("\n\n")}
 matching_tiles = {x: get_matching_tiles(test_tiles, test_tiles[x]) for x in test_tiles.keys()}
-#a = test_tiles[1951].find_rotation(test_tiles[2311])
-print(prod(x for x in matching_tiles.keys() if len(matching_tiles[x]) == 2))
+print(f"Part one: {prod(x for x in matching_tiles.keys() if len(matching_tiles[x]) == 2)}")
+first_piece_rotation = get_corner_rotation(test_tiles[1951].occupied_sides(matching_tiles[1951]))
+first_piece = NPTile.from_frozen_tile(test_tiles[1951])
+first_piece.tile_data = np.flipud(first_piece.tile_data)
+build_nptile_web(test_tiles, matching_tiles, first_piece)
+full_web = first_piece.get_full_web(borders=False)
+full_web = np.flipud(full_web)
+full_web = np.rot90(full_web, 1, axes=(1, 0))
+
+print("\n".join(first_piece.repr_without_spacing(borders=False)))
+
 
 
 
