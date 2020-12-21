@@ -6,15 +6,8 @@ import numpy as np
 
 
 DIRECTIONS = {'N': 0, 'E': 1, 'S': 2, 'W': 3}
-DIRECTION_INTS = {v: k for k, v in DIRECTIONS.items()}
 ROTATED_DIRECTIONS = {'N': 'E', 'E': 'S', 'S': 'W', 'W': 'N'}
 ROTATED_DIRECTION_INTS = {DIRECTIONS[k]: DIRECTIONS[v] for k, v in ROTATED_DIRECTIONS.items()}
-MATCHING_SIDES = {'N': 'S', 'S': 'N', 'W': 'E', 'E': 'W'}
-
-
-SEA_MONSTER = """                  # 
-#    ##    ##    ###
- #  #  #  #  #  #   """.split("\n")
 
 
 class Coord(NamedTuple):
@@ -221,9 +214,9 @@ def build_nptile_web(tile_set: Dict[int, FrozenTile], matching_tiles: Dict[int, 
     if not first_piece:
         corners = [tile_set[x] for x in matching_tiles.keys() if len(matching_tiles[x]) == 2]
         top_left = corners[0]
-        occupied_sides = first_piece.occupied_sides([tile_set[x] for x in matching_tiles[first_piece.tile_id]])
-        first_piece_rotation = get_corner_rotation(occupied_sides)
+        occupied_sides = top_left.occupied_sides(matching_tiles[top_left.tile_id])
         first_piece = NPTile.from_frozen_tile(top_left)
+        first_piece_rotation = get_corner_rotation(occupied_sides)
         first_piece.rotate(first_piece_rotation)
 
     current_line_start = first_piece
@@ -250,144 +243,68 @@ def build_nptile_web(tile_set: Dict[int, FrozenTile], matching_tiles: Dict[int, 
     return first_piece
 
 
-def get_sea_monster_coords() -> Set[Coord]:
+SEA_MONSTER = [
+    "                  #  ",
+    "#    ##    ##    ### ",
+    " #  #  #  #  #  #    "
+]
+
+
+def get_sea_monster_coords(monster_shape: List[str]) -> Set[Coord]:
     sea_monster_coords = set()
-    for i, line in enumerate(SEA_MONSTER):
+    for i, line in enumerate(monster_shape):
         for j, char in enumerate(line):
             if char == "#":
                 sea_monster_coords.add(Coord(y=i, x=j))
     return sea_monster_coords
 
 
-def find_sea_monster(grid: np.ndarray) -> Coord:
+SEA_MONSTER_COORDS = get_sea_monster_coords(SEA_MONSTER)
+
+
+def find_sea_monsters(grid: np.ndarray) -> int:
     sea_monster_height = len(SEA_MONSTER)
     sea_monster_width = len(SEA_MONSTER[0])
-    sea_monster_coords = get_sea_monster_coords()
-    while True:
-        pass
+    num_monsters = 0
+    for i in range(0, grid.shape[0] - sea_monster_height):
+        for j in range(0, grid.shape[1] - sea_monster_width):
+            slice = grid[i:i+sea_monster_height, j:j+sea_monster_width]
+            if all(slice[coord] == 1 for coord in SEA_MONSTER_COORDS):
+                num_monsters += 1
+    return num_monsters
 
 
-TEST_DATA = """Tile 2311:
-..##.#..#.
-##..#.....
-#...##..#.
-####.#...#
-##.##.###.
-##...#.###
-.#.#.#..##
-..#....#..
-###...#.#.
-..###..###
-
-Tile 1951:
-#.##...##.
-#.####...#
-.....#..##
-#...######
-.##.#....#
-.###.#####
-###.##.##.
-.###....#.
-..#.#..#.#
-#...##.#..
-
-Tile 1171:
-####...##.
-#..##.#..#
-##.#..#.#.
-.###.####.
-..###.####
-.##....##.
-.#...####.
-#.##.####.
-####..#...
-.....##...
-
-Tile 1427:
-###.##.#..
-.#..#.##..
-.#.##.#..#
-#.#.#.##.#
-....#...##
-...##..##.
-...#.#####
-.#.####.#.
-..#..###.#
-..##.#..#.
-
-Tile 1489:
-##.#.#....
-..##...#..
-.##..##...
-..#...#...
-#####...#.
-#..#.#.#.#
-...#.#.#..
-##.#...##.
-..##.##.##
-###.##.#..
-
-Tile 2473:
-#....####.
-#..#.##...
-#.##..#...
-######.#.#
-.#...#.#.#
-.#########
-.###.#..#.
-########.#
-##...##.#.
-..###.#.#.
-
-Tile 2971:
-..#.#....#
-#...###...
-#.#.###...
-##.##..#..
-.#####..##
-.#..####.#
-#..#.#..#.
-..####.###
-..#.#.###.
-...#.#.#.#
-
-Tile 2729:
-...#.#.#.#
-####.#....
-..#.#.....
-....#..#.#
-.##..##.#.
-.#.####...
-####.#.#..
-##.####...
-##..#.##..
-#.##...##.
-
-Tile 3079:
-#.#.#####.
-.#..######
-..#.......
-######....
-####.#..#.
-.#...#.##.
-#.#####.##
-..#.###...
-..#.......
-..#.###..."""
+def find_monsters_any_orientation(grid: np.ndarray) -> int:
+    for _ in range(4):
+        grid = np.rot90(grid, 1, axes=(1, 0))
+        num_monsters = find_sea_monsters(grid)
+        if num_monsters > 0:
+            return num_monsters
+    grid = np.flipud(grid)
+    for _ in range(4):
+        grid = np.rot90(grid, 1, axes=(1, 0))
+        num_monsters = find_sea_monsters(grid)
+        if num_monsters > 0:
+            return num_monsters
 
 
-test_tiles = {FrozenTile.from_string(x).tile_id: FrozenTile.from_string(x) for x in TEST_DATA.split("\n\n")}
-matching_tiles = {x: get_matching_tiles(test_tiles, test_tiles[x]) for x in test_tiles.keys()}
-print(f"Part one: {prod(x for x in matching_tiles.keys() if len(matching_tiles[x]) == 2)}")
-first_piece_rotation = get_corner_rotation(test_tiles[1951].occupied_sides(matching_tiles[1951]))
-first_piece = NPTile.from_frozen_tile(test_tiles[1951])
-first_piece.tile_data = np.flipud(first_piece.tile_data)
-build_nptile_web(test_tiles, matching_tiles, first_piece)
-full_web = first_piece.get_full_web(borders=False)
-full_web = np.flipud(full_web)
-full_web = np.rot90(full_web, 1, axes=(1, 0))
+def part_one(data: str) -> Tuple[Dict[int, FrozenTile], Dict[int, Set[FrozenTile]], int]:
+    tile_dict = {FrozenTile.from_string(x).tile_id: FrozenTile.from_string(x) for x in data.split("\n\n")}
+    matching_tiles = {x: get_matching_tiles(tile_dict, tile_dict[x]) for x in tile_dict.keys()}
+    return tile_dict, matching_tiles, prod(x for x in matching_tiles.keys() if len(matching_tiles[x]) == 2)
 
-print("\n".join(first_piece.repr_without_spacing(borders=False)))
+
+def part_two(all_tiles: Dict[int, FrozenTile], neighbors: Dict[int, Set[FrozenTile]]) -> int:
+    top_left = build_nptile_web(all_tiles, neighbors)
+    full_web = top_left.get_full_web(borders=False)
+    num_monsters = find_monsters_any_orientation(full_web)
+    return np.count_nonzero(full_web) - len(SEA_MONSTER_COORDS)*num_monsters
+
+
+if __name__ == '__main__':
+    frozen_tiles, matching_tile_dict, part_one_answer = part_one(read_data())
+    print(f'Part one: {part_one_answer}')
+    print(f"Part two: {part_two(frozen_tiles, matching_tile_dict)}")
 
 
 
