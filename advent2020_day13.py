@@ -7,15 +7,18 @@ class BusInfo(NamedTuple):
     interval: int
     offset: int
 
-    def valid_at_time(self, time: int) -> bool:
-        return (time + self.offset) % self.interval == 0
+    def valid_part_one(self, time: int) -> bool:
+        return time % self.interval == 0
+
+    def valid_part_two(self, time: int) -> bool:
+        return ((time + self.offset) % self.interval) == 0
 
 
 def part_one(earliest_time: int, bus_list: List[BusInfo]) -> Tuple[int, int]:
     current_time = earliest_time
     # Iterate forward in time until you get at least one valid bus
     while True:
-        arrived_buses = [x for x in bus_list if x.valid_at_time(current_time)]
+        arrived_buses = [x for x in bus_list if x.valid_part_one(current_time)]
         if arrived_buses:
             break
         current_time += 1
@@ -27,19 +30,21 @@ def get_new_step(bus: BusInfo, start_time: int = 0, existing_step: int = 1) -> T
     # Iterate through times, starting at start_time and stepping by existing_step,
     # until you find the next two instances where the bus is valid.  Return the
     # first instance as the new start value and the difference as the new interval.
-    for i in range(start_time, sys.maxsize, existing_step):
-        if bus.valid_at_time(i):
-            times.append(i)
+    current_time = start_time
+    while True:
+        if bus.valid_part_two(current_time):
+            times.append(current_time)
             if len(times) == 2:
                 new_start_time = times[0]
                 new_step_value = times[1] - times[0]
                 return new_start_time, new_step_value
+        current_time += existing_step
 
 
 # For debug purposes to check the state at a particular time
 # Returns a dict of {bus_id: bool}, where bool is if the bus is valid for the particular timestamp
 def check_buses_at_time(bus_list: List[BusInfo], time_to_check: int) -> Dict[int, bool]:
-    return {x.interval: x.valid_at_time(time_to_check) for x in bus_list}
+    return {x.interval: x.valid_part_two(time_to_check) for x in bus_list}
 
 
 def part_two(bus_list: List[BusInfo]) -> int:
