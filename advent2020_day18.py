@@ -97,8 +97,14 @@ def evaluate_part_two(expression: str) -> int:
     return int(expression)
 
 
-INPUT = read_data().split("\n")
-part_one_answers = [evaluate_part_one(line) for line in INPUT]
-print(f'Part one: {sum(evaluate_part_one(line) for line in INPUT)}')
-print(f"Part two: {sum(evaluate_part_two(line) for line in INPUT)}")
+def main():
+    expressions = read_data().split("\n")
+    print(f'Part one: {sum(evaluate_part_one(line) for line in expressions)}')
+    print(f"Part two: {sum(evaluate_part_two(line) for line in expressions)}")
 
+
+if __name__ == '__main__':
+    import time
+    start = time.monotonic()
+    main()
+    print(f"Time: {time.monotonic() - start}")

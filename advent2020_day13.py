@@ -1,6 +1,5 @@
 from utils import read_data
 from typing import List, Tuple, Dict, NamedTuple
-import sys
 
 
 class BusInfo(NamedTuple):
@@ -56,18 +55,25 @@ def part_two(bus_list: List[BusInfo]) -> int:
     # all previous buses stay valid
     for bus in bus_list:
         start_time, current_step = get_new_step(bus, start_time, current_step)
-        print(f"Bus status at time {start_time}: {check_buses_at_time(buslist, start_time)}")
+        #print(f"Bus status at time {start_time}: {check_buses_at_time(bus_list, start_time)}")
     # When you've gone through all of the buses in the list, you arrive at a start_time where all of them are valid
     return start_time
 
 
-INPUT = read_data().split("\n")
-part_one_start_time = int(INPUT[0])
-# Make a sorted list of BusInfo NamedTuples, with the highest interval first
-buslist = sorted([BusInfo(offset=i, interval=int(busname))
-                  for i, busname in enumerate(INPUT[1].split(",")) if busname != "x"],
-                 reverse=True)
-first_bus, time_diff = part_one(part_one_start_time, buslist)
-print(f"Bus {first_bus} arrives {time_diff} minutes past the start time, for a result of {first_bus * time_diff}")
-print(f"The earliest timestamp that all of the buses sync up at is {part_two(buslist)}")
+def main():
+    schedule_card = read_data().split("\n")
+    part_one_start_time = int(schedule_card[0])
+    # Make a sorted list of BusInfo NamedTuples, with the highest interval first
+    buslist = sorted([BusInfo(offset=i, interval=int(busname))
+                      for i, busname in enumerate(schedule_card[1].split(",")) if busname != "x"],
+                     reverse=True)
+    first_bus, time_diff = part_one(part_one_start_time, buslist)
+    print(f"Part one: {first_bus * time_diff}")
+    print(f"Part two: {part_two(buslist)}")
 
+
+if __name__ == '__main__':
+    import time
+    start = time.monotonic()
+    main()
+    print(f"Time: {time.monotonic() - start}")

@@ -82,17 +82,25 @@ def run_cycle(active_cubes: Union[Set[Coord3D], Set[Coord4D]],
     return new_active_cubes
 
 
-INPUT = read_data().split("\n")
+def main():
+    cubes = read_data().splitlines()
+    
+    points_3d = input_to_3d_points(cubes)
+    for _ in range(6):
+        points_3d = run_cycle(points_3d, NEIGHBORS_3D)
+    print(f"Part one: {len(points_3d)}")
+    
+    points_4d = input_to_4d_points(cubes)
+    for _ in range(6):
+        points_4d = run_cycle(points_4d, NEIGHBORS_4D)
+    
+    print(f"Part two: {len(points_4d)}")
+    
 
-points_3d = input_to_3d_points(INPUT)
-for _ in range(6):
-    points_3d = run_cycle(points_3d, NEIGHBORS_3D)
+if __name__ == '__main__':
+    import time
+    start = time.monotonic()
+    main()
+    print(f"Time: {time.monotonic() - start}")
 
-print(f"Total active 3D points: {len(points_3d)}")
-
-points_4d = input_to_4d_points(INPUT)
-for _ in range(6):
-    points_4d = run_cycle(points_4d, NEIGHBORS_4D)
-
-print(f"Total active 4D points: {len(points_4d)}")
 

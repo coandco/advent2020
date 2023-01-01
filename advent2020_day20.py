@@ -301,11 +301,14 @@ def part_two(all_tiles: Dict[int, FrozenTile], neighbors: Dict[int, Set[FrozenTi
     return np.count_nonzero(full_web) - len(SEA_MONSTER_COORDS)*num_monsters
 
 
-if __name__ == '__main__':
+def main():
     frozen_tiles, matching_tile_dict, part_one_answer = part_one(read_data())
-    print(f'Part one: {part_one_answer}')
+    print(f"Part one: {part_one_answer}")
     print(f"Part two: {part_two(frozen_tiles, matching_tile_dict)}")
 
 
-
-
+if __name__ == '__main__':
+    import time
+    start = time.monotonic()
+    main()
+    print(f"Time: {time.monotonic() - start}")

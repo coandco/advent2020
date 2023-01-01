@@ -100,30 +100,30 @@ class DictGrid:
         return retval
 
 
-def part_one(data: List[str]) -> Tuple[int, float]:
-    start = time()
+def part_one(data: List[str]) -> int:
     grid = DictGrid(data)
     while grid.convolute():
         pass
 
-    part_one_time = time() - start
-    return grid.count_occupied(), part_one_time
+    return grid.count_occupied()
 
 
-def part_two(data: List[str]) -> Tuple[int, float]:
-    start = time()
+def part_two(data: List[str]) -> int:
     grid = DictGrid(data, simple_neighbors=False)
     while grid.convolute():
         pass
 
-    part_two_time = time() - start
-    return grid.count_occupied(), part_two_time
+    return grid.count_occupied()
+
+
+def main():
+    seating = read_data().split("\n")
+    print(f"Part one: {part_one(seating)}")
+    print(f"Part two: {part_two(seating)}")
 
 
 if __name__ == '__main__':
-    INPUT = read_data().split("\n")
-    part_one_result, part_one_time = part_one(INPUT)
-    print(f"Part one resulted in {part_one_result} occupied seats, taking {part_one_time} seconds")
-
-    part_two_result, part_two_time = part_two(INPUT)
-    print(f"Part two resulted in {part_two_result} occupied seats, taking {part_two_time} seconds")
+    import time
+    start = time.monotonic()
+    main()
+    print(f"Time: {time.monotonic() - start}")

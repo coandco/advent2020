@@ -110,11 +110,16 @@ def part_two(data: List[str]) -> Coord:
     return ship_loc
 
 
-INPUT = read_data().split("\n")
+def main():
+    instructions = read_data().splitlines()
+    part_one_loc = part_one(instructions)
+    print(f"Part one: {part_one_loc.manhattan_distance}")
+    part_two_loc = part_two(instructions)
+    print(f"Part two: {part_two_loc.manhattan_distance}")
 
-part_one_loc = part_one(INPUT)
-print(f"Part one: the ship is at {part_one_loc}, a Manhattan distance of {part_one_loc.manhattan_distance}")
 
-part_two_loc = part_two(INPUT)
-print(f"Part two: the ship is at {part_two_loc}, a Manhattan distance of {part_two_loc.manhattan_distance}")
-
+if __name__ == '__main__':
+    import time
+    start = time.monotonic()
+    main()
+    print(f"Time: {time.monotonic() - start}")

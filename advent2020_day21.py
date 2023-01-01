@@ -38,10 +38,15 @@ def part_two(allergens_dict: Dict[str, Set[str]]) -> str:
     return ",".join(canonical_allergens_dict[x] for x in sorted(canonical_allergens_dict.keys()))
 
 
-if __name__ == '__main__':
-    INPUT = read_data().split("\n")
-    allergens, part_one_solution = part_one(INPUT)
+def main():
+    food_list = read_data().split("\n")
+    allergens, part_one_solution = part_one(food_list)
     print(f"Part one: {part_one_solution}")
     print(f"Part two: {part_two(allergens)}")
 
 
+if __name__ == '__main__':
+    import time
+    start = time.monotonic()
+    main()
+    print(f"Time: {time.monotonic() - start}")

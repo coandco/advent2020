@@ -69,15 +69,20 @@ def generate_bag_values(bags_hash: Dict[str, Bag], reversed_bags_hash: Dict[str,
     return known_bag_values
 
 
-if __name__ == '__main__':
-    INPUT = read_data().split("\n")
-
-    bags = [Bag(x) for x in INPUT]
+def main():
+    bags = [Bag(x) for x in read_data().splitlines()]
     bags_hash = {x.color: x for x in bags}
     reversed_bags_hash = build_reversed_bags_hash(bags_hash)
     part_one_bags = get_all_containing_bags(reversed_bags_hash, 'shiny gold')
 
-    print(f"{len(part_one_bags)} bags that can contain shiny gold")
+    print(f"Part one: {len(part_one_bags)}")
 
     known_bag_values = generate_bag_values(bags_hash, reversed_bags_hash)
-    print(f"Shiny gold bag value is {known_bag_values['shiny gold']}")
+    print(f"Part 2: {known_bag_values['shiny gold']}")
+
+
+if __name__ == '__main__':
+    import time
+    start = time.monotonic()
+    main()
+    print(f"Time: {time.monotonic() - start}")

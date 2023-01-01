@@ -31,12 +31,19 @@ def find_summed_range(data: List[int], target_number: int) -> List[int]:
                 break
 
 
+def main():
+    preamble_length = 25
+    lines = [int(x) for x in read_data().split("\n")]
+
+    invalid_entry = find_invalid(lines, preamble_length)
+    print(f"Part one: {invalid_entry}")
+
+    good_range = find_summed_range(lines, invalid_entry)
+    print(f"Part two: {min(good_range) + max(good_range)}")
+    
+
 if __name__ == '__main__':
-    PREAMBLE_LENGTH = 25
-    INPUT = [int(x) for x in read_data().split("\n")]
-
-    invalid_entry = find_invalid(INPUT, PREAMBLE_LENGTH)
-    print(f"First invalid entry: {invalid_entry}")
-
-    good_range = find_summed_range(INPUT, invalid_entry)
-    print(f"Min is {min(good_range)}, max is {max(good_range)}, sum is {min(good_range) + max(good_range)}")
+    import time
+    start = time.monotonic()
+    main()
+    print(f"Time: {time.monotonic() - start}")

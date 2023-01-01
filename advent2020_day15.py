@@ -15,6 +15,14 @@ def run_game(data: List[int], iterations: int) -> int:
     return last_number
 
 
-INPUT = [int(x) for x in read_data().split(",")]
-print(f"Part one answer: {run_game(INPUT, 2020)}")
-print(f"Part two answer: {run_game(INPUT, 30000000)}")
+def main():
+    starting_numbers = [int(x) for x in read_data().split(",")]
+    print(f"Part one: {run_game(starting_numbers, 2020)}")
+    print(f"Part two: {run_game(starting_numbers, 30000000)}")
+
+
+if __name__ == '__main__':
+    import time
+    start = time.monotonic()
+    main()
+    print(f"Time: {time.monotonic() - start}")

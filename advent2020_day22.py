@@ -55,9 +55,16 @@ def run_game_part_two(decks: Tuple[List[int], ...], game_num: int = 0) -> Tuple[
     return deck_queues, winner
 
 
-if __name__ == '__main__':
+def main():
     decks = read_input(read_data())
     winning_deck = run_game_part_one(decks)
     print(f"Part one: {calc_score(winning_deck)}")
     final_decks, winner_index = run_game_part_two(decks)
     print(f"Part two: {calc_score(final_decks[winner_index])}")
+
+
+if __name__ == '__main__':
+    import time
+    start = time.monotonic()
+    main()
+    print(f"Time: {time.monotonic() - start}")

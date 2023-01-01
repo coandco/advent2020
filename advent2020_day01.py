@@ -10,7 +10,14 @@ def sum_prod(num_list: List[int], sum_value: int, r_length: int) -> int:
     return solution[0] if solution else None
 
 
-if __name__ == '__main__':
+def main():
     input_processed = [int(x) for x in read_data().split("\n")]
-    print(sum_prod(input_processed, 2020, 2))
-    print(sum_prod(input_processed, 2020, 3))
+    print(f"Part one: {sum_prod(input_processed, 2020, 2)}")
+    print(f"Part two: {sum_prod(input_processed, 2020, 3)}")
+
+
+if __name__ == '__main__':
+    import time
+    start = time.monotonic()
+    main()
+    print(f"Time: {time.monotonic() - start}")

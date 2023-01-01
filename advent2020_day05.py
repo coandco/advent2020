@@ -33,7 +33,7 @@ class Coord(NamedTuple):
         return Coord(y=Coord._bin_to_number(seat[:7], 128, "B", "F"), x=Coord._bin_to_number(seat[-3:], 8, "R", "L"))
 
 
-if __name__ == '__main__':
+def main():
     seats = {Coord.from_seat(x) for x in read_data().split("\n")}
     highest_id = max(x.id for x in seats)
     print(f"Part one: {highest_id}")
@@ -51,3 +51,10 @@ if __name__ == '__main__':
         print(f"Part two: {coord.id}")
     else:
         print(f"Part two ended up with {len(leftover_seats)} missing seats rather than one answer")
+
+
+if __name__ == '__main__':
+    import time
+    start = time.monotonic()
+    main()
+    print(f"Time: {time.monotonic() - start}")

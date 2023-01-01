@@ -1,6 +1,5 @@
 from utils import read_data
-from collections import deque
-from typing import Deque, Optional, List, Tuple
+from typing import Optional, List, Tuple
 from dataclasses import dataclass
 from math import prod
 
@@ -166,9 +165,15 @@ def part_two(data: str, length: int, num_rounds: int, debug: bool = False) -> in
     return prod(circle.values_after_one())
 
 
-if __name__ == '__main__':
+def main():
     part_one_answer = part_one(read_data(), 100)
-    part_two_answer = part_two(read_data(), 1_000_000, 10_000_000, debug=True)
     print(f"Part one: {part_one_answer}")
+    part_two_answer = part_two(read_data(), 1_000_000, 10_000_000)
     print(f"Part two: {part_two_answer}")
 
+
+if __name__ == '__main__':
+    import time
+    start = time.monotonic()
+    main()
+    print(f"Time: {time.monotonic() - start}")

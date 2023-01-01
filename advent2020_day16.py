@@ -84,8 +84,8 @@ def map_fields(constraints: List[Constraint], nearby_tickets: List[List[int]]) -
 
 def part_one(constraints: List[Constraint], nearby_tickets: List[List[int]]) -> int:
     # Put all of the constraints together into one big valid-values pile
-    valid_values = frozenset.union(*(x.valid_values for x in constraint_list))
-    return sum(validate_ticket_part_one(valid_values, ticket) for ticket in nearby)
+    valid_values = frozenset.union(*(x.valid_values for x in constraints))
+    return sum(validate_ticket_part_one(valid_values, ticket) for ticket in nearby_tickets)
 
 
 def part_two(constraints: List[Constraint], your_ticket: List[int], nearby_tickets: List[List[int]]) -> int:
@@ -101,7 +101,14 @@ def part_two(constraints: List[Constraint], your_ticket: List[int], nearby_ticke
     return prod(your_departure_values)
 
 
-constraint_list, yours, nearby = ingest_input(read_data())
+def main():
+    constraint_list, yours, nearby = ingest_input(read_data())
+    print(f"Part one: {part_one(constraint_list, nearby)}")
+    print(f"Part two: {part_two(constraint_list, yours, nearby)}")
 
-print(f"Part one: sum of all invalid values is {part_one(constraint_list, nearby)}")
-print(f"Part two: sum of departure* values is {part_two(constraint_list, yours, nearby)}")
+
+if __name__ == '__main__':
+    import time
+    start = time.monotonic()
+    main()
+    print(f"Time: {time.monotonic() - start}")

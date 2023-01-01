@@ -100,8 +100,16 @@ def check_text_part_two(text: str, rules_dict: Dict[str, Rule]) -> bool:
     return 1 <= num_31s < num_42s
 
 
-rules, texts = (x.split("\n") for x in read_data().split("\n\n"))
-blank_rules = process_rules(rules)
-full_rules = fill_out_rules(blank_rules)
-print(f"Part one: {sum(check_text_part_one(x, full_rules) for x in texts)}")
-print(f"Part two: {sum(check_text_part_two(x, full_rules) for x in texts)}")
+def main():
+    rules, texts = (x.split("\n") for x in read_data().split("\n\n"))
+    blank_rules = process_rules(rules)
+    full_rules = fill_out_rules(blank_rules)
+    print(f"Part one: {sum(check_text_part_one(x, full_rules) for x in texts)}")
+    print(f"Part two: {sum(check_text_part_two(x, full_rules) for x in texts)}")
+
+
+if __name__ == '__main__':
+    import time
+    start = time.monotonic()
+    main()
+    print(f"Time: {time.monotonic() - start}")

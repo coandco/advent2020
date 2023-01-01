@@ -72,7 +72,7 @@ def all_fields_valid(record: Dict[str, str]) -> bool:
     return True
 
 
-if __name__ == '__main__':
+def main():
     parsed_data = parse_data(read_data())
 
     total_valid = 0
@@ -80,11 +80,18 @@ if __name__ == '__main__':
         if NEEDED_FIELDS.issubset(record.keys()):
             total_valid += 1
 
-    print(f"Total valid for part 1 is {total_valid}")
+    print(f"Part one: {total_valid}")
 
     total_valid = 0
     for record in parsed_data:
         if NEEDED_FIELDS.issubset(record.keys()) and all_fields_valid(record):
             total_valid += 1
 
-    print(f"Total valid for part 2 is {total_valid}")
+    print(f"Part two: {total_valid}")
+
+
+if __name__ == '__main__':
+    import time
+    start = time.monotonic()
+    main()
+    print(f"Time: {time.monotonic() - start}")

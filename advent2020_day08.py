@@ -49,13 +49,12 @@ def run_program(data: List[Instruction]) -> ProgramResult:
             return ProgramResult(acc=acc, looped=False)
 
 
-if __name__ == '__main__':
-    INPUT = read_data().split("\n")
-    parsed_data = [Instruction.from_string(x) for x in INPUT]
+def main():
+    parsed_data = [Instruction.from_string(x) for x in read_data().splitlines()]
 
     result = run_program(parsed_data)
 
-    print(f"Part one accumulator is {result.acc}")
+    print(f"Part one: {result.acc}")
 
     current_swap = 0
     while True:
@@ -68,6 +67,11 @@ if __name__ == '__main__':
         else:
             break
         current_swap += 1
-    print(f"After swapping instruction {current_swap} ({parsed_data[current_swap]}), "
-          f"the program exited normally with acc of {result.acc}")
+    print(f"Part two: {result.acc}")
 
+
+if __name__ == '__main__':
+    import time
+    start = time.monotonic()
+    main()
+    print(f"Time: {time.monotonic() - start}")

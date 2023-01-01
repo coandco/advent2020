@@ -33,7 +33,14 @@ def part_two(data: List[int]) -> int:
     return in_range[-1]
 
 
+def main():
+    adapters = [int(x) for x in read_data().splitlines()]
+    print(f"Part one: {part_one(adapters)}")
+    print(f"Part two: {part_two(adapters)}")
+
+
 if __name__ == '__main__':
-    INPUT = [int(x) for x in read_data().split("\n")]
-    print(f"Part one: {part_one(INPUT)}")
-    print(f"Part two: {part_two(INPUT)}")
+    import time
+    start = time.monotonic()
+    main()
+    print(f"Time: {time.monotonic() - start}")

@@ -40,10 +40,16 @@ SLOPES = [
     Coord(x=1, y=2)
 ]
 
-if __name__ == '__main__':
+def main():
     num_trees = check_slope(INPUT, Coord(x=3, y=1))
     print(f"Part one: {num_trees}")
 
     slope_trees = [check_slope(INPUT, x) for x in SLOPES]
     print(f"Part two: {prod(slope_trees)}")
 
+
+if __name__ == '__main__':
+    import time
+    start = time.monotonic()
+    main()
+    print(f"Time: {time.monotonic() - start}")

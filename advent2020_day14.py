@@ -54,7 +54,14 @@ def part_two(data: List[str]) -> int:
     return sum(mem.values())
 
 
-INPUT = read_data().split("\n")
-print(f"Part one: {part_one(INPUT)}")
-print(f"Part two: {part_two(INPUT)}")
+def main():
+    init_program = read_data().splitlines()
+    print(f"Part one: {part_one(init_program)}")
+    print(f"Part two: {part_two(init_program)}")
 
+
+if __name__ == '__main__':
+    import time
+    start = time.monotonic()
+    main()
+    print(f"Time: {time.monotonic() - start}")

@@ -19,9 +19,9 @@ def find_loop_size(public_key: int, subject_number: int = 7) -> int:
 def get_key(data: List[str]) -> int:
     card_key, door_key = (int(x) for x in data)
     card_loop_size = find_loop_size(card_key)
-    print(f"Card loop size is {card_loop_size}")
+    # print(f"Card loop size is {card_loop_size}")
     door_loop_size = find_loop_size(door_key)
-    print(f"Door loop size is {door_loop_size}")
+    # print(f"Door loop size is {door_loop_size}")
     card_encryption = 1
     for _ in range(card_loop_size):
         card_encryption = transform_subject(door_key, card_encryption)
@@ -32,5 +32,12 @@ def get_key(data: List[str]) -> int:
     return card_encryption
 
 
+def main():
+    print(f"Part one: {get_key(read_data().splitlines())}")
+
+
 if __name__ == '__main__':
-    print(get_key(read_data().split("\n")))
+    import time
+    start = time.monotonic()
+    main()
+    print(f"Time: {time.monotonic() - start}")

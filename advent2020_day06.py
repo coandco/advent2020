@@ -9,6 +9,14 @@ class Group:
         self.all_questions_answered = set.intersection(*self.records)
 
 
-parsed_groups = [Group(x.split("\n")) for x in read_data().split("\n\n")]
-print(f"Part one: {sum(len(x.any_questions_answered) for x in parsed_groups)}")
-print(f"Part two: {sum(len(x.all_questions_answered) for x in parsed_groups)}")
+def main():
+    parsed_groups = [Group(x.split("\n")) for x in read_data().split("\n\n")]
+    print(f"Part one: {sum(len(x.any_questions_answered) for x in parsed_groups)}")
+    print(f"Part two: {sum(len(x.all_questions_answered) for x in parsed_groups)}")
+
+
+if __name__ == '__main__':
+    import time
+    start = time.monotonic()
+    main()
+    print(f"Time: {time.monotonic() - start}")

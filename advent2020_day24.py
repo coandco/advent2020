@@ -69,11 +69,17 @@ def run_iteration(field: Set[Coord]) -> Set[Coord]:
     return new_field
 
 
-if __name__ == '__main__':
-    INPUT = read_data().split("\n")
-    starting_field = make_field(INPUT)
+def main():
+    starting_field = make_field(read_data().splitlines())
     print(f"Part one: {len(starting_field)}")
     current_field = starting_field
     for i in range(100):
         current_field = run_iteration(current_field)
     print(f"Part two: {len(current_field)}")
+
+
+if __name__ == '__main__':
+    import time
+    start = time.monotonic()
+    main()
+    print(f"Time: {time.monotonic() - start}")
